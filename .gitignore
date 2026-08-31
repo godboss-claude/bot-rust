@@ -1,0 +1,6 @@
+node_modules
+database.json
+.env
+bot.log
+bot-error.log
+.git

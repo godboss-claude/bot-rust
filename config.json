@@ -1,0 +1,14 @@
+{
+  "color": "#5865F2",
+  "footer": "Premium Bot • by YourShop",
+  "economy": {
+    "dailyAmount": 500,
+    "workMin": 100,
+    "workMax": 300,
+    "startBalance": 1000
+  },
+  "levels": {
+    "xpPerMessage": 15,
+    "xpRandom": 10
+  }
+}
