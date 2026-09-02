@@ -32,7 +32,7 @@ h2{text-align:center;font-size:32px;margin-bottom:8px}
 .price{font-size:28px;font-weight:800}
 .reveal{opacity:0;transform:translateY(20px);transition:.7s}
 .reveal.show{opacity:1;transform:none}
-.blob{position:absolute;width:400px;height:400px;background:#5865F2;filter:blur(120px);opacity:.12;border-radius:50%;animation:float 8s ease-in-out infinite}
+.blob{position:absolute;width:400px;height:400px;background:#5865F2;filter:blur(120px);opacity:.12;border-radius:50%;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
 @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
 footer{padding:30px 5%;border-top:1px solid #222;color:#9aa;text-align:center}
 </style>
@@ -45,8 +45,8 @@ footer{padding:30px 5%;border-top:1px solid #222;color:#9aa;text-align:center}
   <div class="blob" style="top:-40px;left:-40px"></div>
   <h1 class="reveal show">Роблю <span class="grad">ботів</span><br>які продають</h1>
   <div class="type" id="type"></div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <a class="btn btn-p" href="https://t.me/Harusan11" target="_blank">Написати в ТГ →</a>
+   <div style="display:flex;gap:12px;flex-wrap:wrap;position:relative;z-index:2">
+    <a class="btn btn-p" href="https://t.me/Harusan11" target="_blank" rel="noopener">Написати в ТГ →</a>
     <a class="btn btn-g" href="#pricing">Пакети 30—100₴</a>
   </div>
   <p style="margin-top:14px;color:#9aa">Discord • Telegram • Сайти • Хостинг 24/7 безкоштовно • Оплата після видачі</p>
