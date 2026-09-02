@@ -24,9 +24,21 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
 });
 
+async function sendWebhook(title, desc, color = 0x5865F2) {
+  if (!config.webhookUrl) return;
+  try {
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ embeds: [{ title, description: desc, color, timestamp: new Date().toISOString() }] })
+    });
+  } catch {}
+}
+
 client.once('ready', () => {
   console.log(`✅ ${client.user.tag} запущений на ${client.guilds.cache.size} серверах`);
   client.user.setActivity('/help • Premium Bot');
+  sendWebhook('✅ Бот запущений', `Бот ${client.user.tag} онлайн на ${client.guilds.cache.size} серверах`);
 });
 
 // XP система
@@ -77,6 +89,8 @@ client.on('interactionCreate', async interaction => {
   const color = config.color;
   const db = loadDB();
 
+  // вебхук лог
+  sendWebhook('📝 Команда', `/${commandName} від ${interaction.user.tag} на ${interaction.guild?.name || 'DM'}`).catch(()=>{});
   try {
     if (commandName === 'ping') return interaction.reply(`🏓 Понг! \`${client.ws.ping}ms\``);
 

@@ -10,5 +10,6 @@
   "levels": {
     "xpPerMessage": 15,
     "xpRandom": 10
-  }
+  },
+  "webhookUrl": ""
 }
