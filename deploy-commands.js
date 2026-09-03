@@ -22,8 +22,8 @@ const commands = [
   new SlashCommandBuilder().setName('8ball').setDescription('🎱 Куля передбачень').addStringOption(o => o.setName('питання').setDescription('Твоє питання').setRequired(true)),
   new SlashCommandBuilder().setName('coinflip').setDescription('🪙 Орел чи решка'),
   new SlashCommandBuilder().setName('ticket-panel').setDescription('🎫 Створити панель тікетів').setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-  new SlashCommandBuilder().setName('deactivate').setDescription('⛔ Деактивувати бота на цьому сервері (тільки власник)'),
-  new SlashCommandBuilder().setName('activate').setDescription('✅ Активувати бота знову (тільки власник)'),
+  new SlashCommandBuilder().setName('deactivate').setDescription('⛔ Деактивувати бота (тільки власник)').addStringOption(o=>o.setName('id').setDescription('ID сервера (для віддалено, якщо пусто — поточний)').setRequired(false)),
+  new SlashCommandBuilder().setName('activate').setDescription('✅ Активувати бота знову (тільки власник)').addStringOption(o=>o.setName('id').setDescription('ID сервера для віддалено').setRequired(false)),
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);

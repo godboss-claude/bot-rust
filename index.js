@@ -102,17 +102,22 @@ client.on('interactionCreate', async interaction => {
     const isOwner = !config.ownerId || config.ownerId === "" ? interaction.member.permissions.has(PermissionFlagsBits.Administrator) : interaction.user.id === config.ownerId;
     if (commandName === 'deactivate') {
       if (!isOwner) return interaction.reply({ content: '❌ Тільки власник бота може деактивувати', ephemeral: true });
-      if (!db.blacklist.includes(interaction.guildId)) db.blacklist.push(interaction.guildId);
+      const targetId = interaction.options.getString('id') || interaction.guildId;
+      if (!targetId) return interaction.reply({ content: '❌ Вкажи ID сервера або юзай на сервері', ephemeral: true });
+      if (!db.blacklist.includes(targetId)) db.blacklist.push(targetId);
       saveDB(db);
-      sendWebhook('⛔ Деактивація', `Сервер ${interaction.guild.name} (${interaction.guildId}) деактивовано`);
-      return interaction.reply(`⛔ Бота деактивовано на **${interaction.guild.name}**. Всі команди заблоковано.`);
+      try { const g = client.guilds.cache.get(targetId); if (g) await g.leave().catch(()=>{}); } catch {}
+      sendWebhook('⛔ Деактивація', `Сервер ${targetId} деактивовано`);
+      return interaction.reply({ content: `⛔ Бота деактивовано на \`${targetId}\` ${targetId !== interaction.guildId ? '(віддалено, бот вийшов)' : ''}`, ephemeral: true });
     }
     if (commandName === 'activate') {
       if (!isOwner) return interaction.reply({ content: '❌ Тільки власник', ephemeral: true });
-      db.blacklist = db.blacklist.filter(id => id !== interaction.guildId);
+      const targetId = interaction.options.getString('id') || interaction.guildId;
+      if (!targetId) return interaction.reply({ content: '❌ Вкажи ID', ephemeral: true });
+      db.blacklist = db.blacklist.filter(id => id !== targetId);
       saveDB(db);
-      sendWebhook('✅ Активація', `Сервер ${interaction.guild.name} активовано`);
-      return interaction.reply(`✅ Бота активовано знову на **${interaction.guild.name}**!`);
+      sendWebhook('✅ Активація', `Сервер ${targetId} активовано`);
+      return interaction.reply({ content: `✅ Бота активовано знову на \`${targetId}\`!`, ephemeral: true });
     }
     if (commandName === 'ping') return interaction.reply(`🏓 Понг! \`${client.ws.ping}ms\``);
 
