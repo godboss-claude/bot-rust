@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const ADMIN_ID = process.env.ADMIN_ID;
+const ADMIN_IDS = (process.env.ADMIN_ID || "").split(",").map(s=>s.trim()).filter(Boolean);
 const ROLES = ["Білдер", "Електрик", "Фермер", "Комбатер", "Коллер", "Пілот", "Медіа"];
 
 const sessions = new Map(); // userId -> {step, role, answers}
@@ -62,7 +62,9 @@ bot.on("text", async (ctx, next) => {
       [Markup.button.callback("✅ Прийняти", `accept_${ctx.from.id}`), Markup.button.callback("❌ Відхилити", `reject_${ctx.from.id}`)]
     ]);
     try {
-      if (ADMIN_ID) await bot.telegram.sendMessage(ADMIN_ID, app, { parse_mode:"Markdown", ...adminKb });
+      for (const aid of ADMIN_IDS) {
+        await bot.telegram.sendMessage(aid, app, { parse_mode:"Markdown", ...adminKb });
+      }
     } catch(e){ console.error("send admin", e.message)}
     if (!isWhitelisted(ctx)) cooldown.set(ctx.from.id, Date.now());
     sessions.delete(ctx.from.id);
