@@ -260,3 +260,6 @@ client.on('guildMemberAdd', member => {
 });
 
 client.login(process.env.TOKEN);
+
+// для Render — тримає порт відкритим щоб не крашився
+require('http').createServer((req,res)=>res.end('Harusan Bot is running')).listen(process.env.PORT || 3000);
