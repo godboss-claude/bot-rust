@@ -22,7 +22,7 @@ bot.start((ctx) => {
   }
   sessions.set(ctx.from.id, { step: 0, role: null, answers: {} });
   ctx.reply(
-    `👋 Привіт, ${ctx.from.first_name}! Я бот *HATO* — набір в клан Rust.\n\nНа яку роль хочеш вступити?`,
+    `Привіт, дякуємо що вибрали клан HATO виберіть бажану роль`,
     { parse_mode: "Markdown",
       ...Markup.inlineKeyboard(ROLES.map(r => [Markup.button.callback(r, `role_${r}`)]))
     }
