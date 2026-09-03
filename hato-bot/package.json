@@ -1,0 +1,14 @@
+{
+  "name": "hato-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot HATO - заявки на ролі",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord-bot-sell-template": "file:../../../../парацетамол/Documents/Default Project",
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.16.3"
+  }
+}
