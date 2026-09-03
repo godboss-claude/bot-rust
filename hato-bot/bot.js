@@ -6,8 +6,15 @@ const ADMIN_ID = process.env.ADMIN_ID;
 const ROLES = ["Білдер", "Електрик", "Фермер", "Комбатер", "Коллер", "Пілот", "Медіа"];
 
 const sessions = new Map(); // userId -> {step, role, answers}
+const cooldown = new Map(); // userId -> timestamp
+const COOLDOWN_MS = 24*60*60*1000;
 
 bot.start((ctx) => {
+  const last = cooldown.get(ctx.from.id);
+  if (last && Date.now() - last < COOLDOWN_MS) {
+    const left = Math.ceil((COOLDOWN_MS - (Date.now()-last))/3600000);
+    return ctx.reply(`⏳ Ти вже кидав заявку! Спробуй знову через ${left} год.`);
+  }
   sessions.set(ctx.from.id, { step: 0, role: null, answers: {} });
   ctx.reply(
     `👋 Привіт, ${ctx.from.first_name}! Я бот *HATO* — набір в клан Rust.\n\nНа яку роль хочеш вступити?`,
@@ -52,9 +59,9 @@ bot.on("text", async (ctx, next) => {
     try {
       if (ADMIN_ID) await bot.telegram.sendMessage(ADMIN_ID, app, { parse_mode:"Markdown", ...adminKb });
     } catch(e){ console.error("send admin", e.message)}
-    // також вебхук якщо є
+    cooldown.set(ctx.from.id, Date.now());
     sessions.delete(ctx.from.id);
-    return ctx.reply(`✅ Заявку на *${s.role}* відправлено! Очікуй відповідь від @${process.env.ADMIN_USERNAME || "Harusan11"}.`, {parse_mode:"Markdown"});
+    return ctx.reply(`✅ Заявку на *${s.role}* відправлено! Очікуй відповідь від @${process.env.ADMIN_USERNAME || "Harusan11"}.\n⏳ Наступну заявку можна через 24 год.` , {parse_mode:"Markdown"});
   }
 });
 
