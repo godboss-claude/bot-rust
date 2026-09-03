@@ -6,8 +6,10 @@ const config = require('./config.json');
 
 const DB_PATH = path.join(__dirname, 'database.json');
 function loadDB() {
-  if (!fs.existsSync(DB_PATH)) fs.writeFileSync(DB_PATH, JSON.stringify({ economy: {}, levels: {}, daily: {}, warns: {} }, null, 2));
-  return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+  if (!fs.existsSync(DB_PATH)) fs.writeFileSync(DB_PATH, JSON.stringify({ economy: {}, levels: {}, daily: {}, warns: {}, blacklist: [] }, null, 2));
+  const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+  if (!db.blacklist) db.blacklist = [];
+  return db;
 }
 function saveDB(db) { fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2)); }
 function getUser(db, guildId, userId, category) {
@@ -89,9 +91,29 @@ client.on('interactionCreate', async interaction => {
   const color = config.color;
   const db = loadDB();
 
+  // blacklist check
+  if (db.blacklist && db.blacklist.includes(interaction.guildId)) {
+    return interaction.reply({ content: '⛔ Бота деактивовано на цьому сервері. Зверніться до власника.', ephemeral: true });
+  }
   // вебхук лог
   sendWebhook('📝 Команда', `/${commandName} від ${interaction.user.tag} на ${interaction.guild?.name || 'DM'}`).catch(()=>{});
   try {
+    // перевірка власника
+    const isOwner = config.ownerId && interaction.user.id === config.ownerId;
+    if (commandName === 'deactivate') {
+      if (!isOwner) return interaction.reply({ content: '❌ Тільки власник бота може деактивувати', ephemeral: true });
+      if (!db.blacklist.includes(interaction.guildId)) db.blacklist.push(interaction.guildId);
+      saveDB(db);
+      sendWebhook('⛔ Деактивація', `Сервер ${interaction.guild.name} (${interaction.guildId}) деактивовано`);
+      return interaction.reply(`⛔ Бота деактивовано на **${interaction.guild.name}**. Всі команди заблоковано.`);
+    }
+    if (commandName === 'activate') {
+      if (!isOwner) return interaction.reply({ content: '❌ Тільки власник', ephemeral: true });
+      db.blacklist = db.blacklist.filter(id => id !== interaction.guildId);
+      saveDB(db);
+      sendWebhook('✅ Активація', `Сервер ${interaction.guild.name} активовано`);
+      return interaction.reply(`✅ Бота активовано знову на **${interaction.guild.name}**!`);
+    }
     if (commandName === 'ping') return interaction.reply(`🏓 Понг! \`${client.ws.ping}ms\``);
 
     if (commandName === 'help') {
