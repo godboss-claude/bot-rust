@@ -8,12 +8,17 @@ const ROLES = ["Білдер", "Електрик", "Фермер", "Комбат
 const sessions = new Map(); // userId -> {step, role, answers}
 const cooldown = new Map(); // userId -> timestamp
 const COOLDOWN_MS = 24*60*60*1000;
+const WHITELIST = ["8366908619", "Harusan11", "Dimidrol638"]; // без кулдауну
+
+function isWhitelisted(ctx){ return WHITELIST.includes(String(ctx.from.id)) || WHITELIST.includes(ctx.from.username); }
 
 bot.start((ctx) => {
-  const last = cooldown.get(ctx.from.id);
-  if (last && Date.now() - last < COOLDOWN_MS) {
-    const left = Math.ceil((COOLDOWN_MS - (Date.now()-last))/3600000);
-    return ctx.reply(`⏳ Ти вже кидав заявку! Спробуй знову через ${left} год.`);
+  if (!isWhitelisted(ctx)) {
+    const last = cooldown.get(ctx.from.id);
+    if (last && Date.now() - last < COOLDOWN_MS) {
+      const left = Math.ceil((COOLDOWN_MS - (Date.now()-last))/3600000);
+      return ctx.reply(`⏳ Ти вже кидав заявку! Спробуй знову через ${left} год.`);
+    }
   }
   sessions.set(ctx.from.id, { step: 0, role: null, answers: {} });
   ctx.reply(
@@ -59,7 +64,7 @@ bot.on("text", async (ctx, next) => {
     try {
       if (ADMIN_ID) await bot.telegram.sendMessage(ADMIN_ID, app, { parse_mode:"Markdown", ...adminKb });
     } catch(e){ console.error("send admin", e.message)}
-    cooldown.set(ctx.from.id, Date.now());
+    if (!isWhitelisted(ctx)) cooldown.set(ctx.from.id, Date.now());
     sessions.delete(ctx.from.id);
     return ctx.reply(`✅ Заявку на *${s.role}* відправлено! Очікуй відповідь від @${process.env.ADMIN_USERNAME || "Harusan11"}.\n⏳ Наступну заявку можна через 24 год.` , {parse_mode:"Markdown"});
   }
