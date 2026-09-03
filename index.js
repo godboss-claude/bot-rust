@@ -98,8 +98,8 @@ client.on('interactionCreate', async interaction => {
   // вебхук лог
   sendWebhook('📝 Команда', `/${commandName} від ${interaction.user.tag} на ${interaction.guild?.name || 'DM'}`).catch(()=>{});
   try {
-    // перевірка власника
-    const isOwner = config.ownerId && interaction.user.id === config.ownerId;
+    // перевірка власника (якщо ownerId не вказано — дозволяємо адміну сервера для тесту)
+    const isOwner = !config.ownerId || config.ownerId === "" ? interaction.member.permissions.has(PermissionFlagsBits.Administrator) : interaction.user.id === config.ownerId;
     if (commandName === 'deactivate') {
       if (!isOwner) return interaction.reply({ content: '❌ Тільки власник бота може деактивувати', ephemeral: true });
       if (!db.blacklist.includes(interaction.guildId)) db.blacklist.push(interaction.guildId);
