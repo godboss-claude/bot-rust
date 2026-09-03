@@ -61,6 +61,17 @@ client.on('messageCreate', async msg => {
 });
 
 client.on('interactionCreate', async interaction => {
+  // автокомпліт для deactivate/activate — список серверів
+  if (interaction.isAutocomplete()) {
+    if (['deactivate','activate'].includes(interaction.commandName)) {
+      const isOwner = !config.ownerId || config.ownerId === "" ? interaction.member?.permissions?.has(PermissionFlagsBits.Administrator) : interaction.user.id === config.ownerId;
+      if (!isOwner) return interaction.respond([]);
+      const val = interaction.options.getFocused().toLowerCase();
+      const choices = client.guilds.cache.map(g=>({ name: `${g.name} — ${g.id}${loadDB().blacklist?.includes(g.id)?' ⛔':''}`, value: g.id })).filter(c=>c.name.toLowerCase().includes(val)).slice(0,25);
+      return interaction.respond(choices);
+    }
+    return;
+  }
   // Кнопки тікетів
   if (interaction.isButton()) {
     if (interaction.customId === 'create_ticket') {
