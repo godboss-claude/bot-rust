@@ -3,7 +3,7 @@ const { Telegraf, Markup } = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const ADMIN_ID = process.env.ADMIN_ID;
-const ROLES = ["Білдер", "Електрик", "Фермер", "Комбатер", "Коллер"];
+const ROLES = ["Білдер", "Електрик", "Фермер", "Комбатер", "Коллер", "Пілот", "Медіа"];
 
 const sessions = new Map(); // userId -> {step, role, answers}
 
