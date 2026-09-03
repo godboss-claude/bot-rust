@@ -61,13 +61,24 @@ client.on('messageCreate', async msg => {
 });
 
 client.on('interactionCreate', async interaction => {
-  // автокомпліт для deactivate/activate — список серверів
+  // автокомпліт для deactivate/activate
   if (interaction.isAutocomplete()) {
     if (['deactivate','activate'].includes(interaction.commandName)) {
       const isOwner = !config.ownerId || config.ownerId === "" ? interaction.member?.permissions?.has(PermissionFlagsBits.Administrator) : interaction.user.id === config.ownerId;
       if (!isOwner) return interaction.respond([]);
+      const db0 = loadDB();
       const val = interaction.options.getFocused().toLowerCase();
-      const choices = client.guilds.cache.map(g=>({ name: `${g.name} — ${g.id}${loadDB().blacklist?.includes(g.id)?' ⛔':''}`, value: g.id })).filter(c=>c.name.toLowerCase().includes(val)).slice(0,25);
+      let choices = [];
+      if (interaction.commandName === 'deactivate') {
+        choices = client.guilds.cache.filter(g=>!db0.blacklist.includes(g.id)).map(g=>({ name: `${g.name} — ${g.id}`, value: g.id }));
+      } else {
+        // activate: показуємо заблоковані, навіть якщо бот вже вийшов
+        choices = db0.blacklist.map(id=>{
+          const g = client.guilds.cache.get(id);
+          return g ? { name: `${g.name} — ${id} ⛔`, value: id } : { name: `${id} ⛔ (бот вийшов)`, value: id };
+        });
+      }
+      choices = choices.filter(c=>c.name.toLowerCase().includes(val)).slice(0,25);
       return interaction.respond(choices);
     }
     return;
@@ -117,9 +128,8 @@ client.on('interactionCreate', async interaction => {
       if (!targetId) return interaction.reply({ content: '❌ Вкажи ID сервера або юзай на сервері', ephemeral: true });
       if (!db.blacklist.includes(targetId)) db.blacklist.push(targetId);
       saveDB(db);
-      try { const g = client.guilds.cache.get(targetId); if (g) await g.leave().catch(()=>{}); } catch {}
       sendWebhook('⛔ Деактивація', `Сервер ${targetId} деактивовано`);
-      return interaction.reply({ content: `⛔ Бота деактивовано на \`${targetId}\` ${targetId !== interaction.guildId ? '(віддалено, бот вийшов)' : ''}`, ephemeral: true });
+      return interaction.reply({ content: `⛔ Бота деактивовано на \`${targetId}\` — команди заблоковано`, ephemeral: true });
     }
     if (commandName === 'activate') {
       if (!isOwner) return interaction.reply({ content: '❌ Тільки власник', ephemeral: true });
