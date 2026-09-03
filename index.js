@@ -91,8 +91,8 @@ client.on('interactionCreate', async interaction => {
   const color = config.color;
   const db = loadDB();
 
-  // blacklist check
-  if (db.blacklist && db.blacklist.includes(interaction.guildId)) {
+  // blacklist check (крім activate/deactivate)
+  if (db.blacklist && db.blacklist.includes(interaction.guildId) && !['deactivate','activate'].includes(commandName)) {
     return interaction.reply({ content: '⛔ Бота деактивовано на цьому сервері. Зверніться до власника.', ephemeral: true });
   }
   // вебхук лог
